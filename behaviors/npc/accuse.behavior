@@ -1,0 +1,275 @@
+{
+  "name": "accuse",
+  "description": "",
+  "scripts": [
+    "/scripts/actions/notification.lua",
+    "/scripts/actions/position.lua",
+    "/scripts/actions/sensor.lua",
+    "/scripts/actions/world.lua",
+    "/scripts/actions/dialog.lua",
+    "/scripts/behavior.lua",
+    "/scripts/actions/entity.lua",
+    "/scripts/actions/time.lua"
+  ],
+  "parameters": {
+    "hostileDamageTeam": {
+      "type": "enemy",
+      "team": 1
+    }
+  },
+  "root": {
+    "title": "sequence",
+    "type": "composite",
+    "name": "sequence",
+    "parameters": {
+      "type": "sliding",
+      "state": "off",
+      "fromEntity": "attackTarget",
+      "toEntity": "fleeTarget"
+    },
+    "children": [
+      {
+        "title": "receivedNotification",
+        "type": "action",
+        "name": "receivedNotification",
+        "parameters": {
+          "type": "objectBroken"
+        },
+        "output": {
+          "target": "thiefTarget",
+          "targetPosition": "objectPosition"
+        }
+      },
+      {
+        "title": "selector",
+        "type": "composite",
+        "name": "selector",
+        "parameters": {},
+        "children": [
+          {
+            "title": "sequence",
+            "type": "composite",
+            "name": "sequence",
+            "parameters": {
+              "type": "sliding",
+              "state": "off",
+              "fromEntity": "attackTarget",
+              "toEntity": "fleeTarget"
+            },
+            "children": [
+              {
+                "title": "distance",
+                "type": "action",
+                "name": "distance",
+                "parameters": {
+                  "from": "self",
+                  "to": "objectPosition"
+                },
+                "output": {
+                  "vector": "toObject"
+                }
+              },
+              {
+                "title": "inverter",
+                "type": "decorator",
+                "name": "inverter",
+                "parameters": {},
+                "child": {
+                  "title": "lineTileCollision",
+                  "type": "action",
+                  "name": "lineTileCollision",
+                  "parameters": {
+                    "position": "self",
+                    "offset": "toObject",
+                    "collisionType": [
+                      "Null",
+                      "Block",
+                      "Dynamic"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "title": "sequence",
+            "type": "composite",
+            "name": "sequence",
+            "parameters": {
+              "type": "sliding",
+              "state": "off",
+              "fromEntity": "attackTarget",
+              "toEntity": "fleeTarget"
+            },
+            "children": [
+              {
+                "title": "entityPosition",
+                "type": "action",
+                "name": "entityPosition",
+                "parameters": {
+                  "entity": "thiefTarget"
+                },
+                "output": {
+                  "position": "thiefPosition"
+                }
+              },
+              {
+                "title": "distance",
+                "type": "action",
+                "name": "distance",
+                "parameters": {
+                  "from": "self",
+                  "to": "thiefPosition"
+                },
+                "output": {
+                  "vector": "toThief"
+                }
+              },
+              {
+                "title": "inverter",
+                "type": "decorator",
+                "name": "inverter",
+                "parameters": {},
+                "child": {
+                  "title": "lineTileCollision",
+                  "type": "action",
+                  "name": "lineTileCollision",
+                  "parameters": {
+                    "position": "self",
+                    "offset": "toThief",
+                    "collisionType": [
+                      "Null",
+                      "Block",
+                      "Dynamic"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "selector",
+        "type": "composite",
+        "name": "selector",
+        "parameters": {},
+        "children": [
+          {
+            "title": "limiter",
+            "type": "decorator",
+            "name": "limiter",
+            "parameters": {
+              "limit": 2
+            },
+            "child": {
+              "title": "sayToEntity",
+              "type": "action",
+              "name": "sayToEntity",
+              "parameters": {
+                "dialogType": "dialog.accuse",
+                "entity": "thiefTarget",
+                "tags": {},
+                "static": false
+              }
+            }
+          },
+          {
+            "title": "sequence",
+            "type": "composite",
+            "name": "sequence",
+            "parameters": {
+              "type": "sliding",
+              "state": "off",
+              "fromEntity": "attackTarget",
+              "toEntity": "fleeTarget"
+            },
+            "children": [
+              {
+                "title": "setEntity",
+                "type": "action",
+                "name": "setEntity",
+                "parameters": {
+                  "entity": "thiefTarget"
+                },
+                "output": {
+                  "entity": "reactTarget"
+                }
+              },
+              {
+                "title": "setDamageTeam",
+                "type": "action",
+                "name": "setDamageTeam",
+                "parameters": {
+                  "damageTeam": "<hostileDamageTeam>"
+                }
+              },
+              {
+                "title": "parallel",
+                "type": "composite",
+                "name": "parallel",
+                "parameters": {
+                  "fail": -1,
+                  "success": -1
+                },
+                "children": [
+                  {
+                    "title": "cooldown",
+                    "type": "decorator",
+                    "name": "cooldown",
+                    "parameters": {
+                      "cooldown": 6,
+                      "onFail": false,
+                      "onSuccess": true
+                    },
+                    "child": {
+                      "title": "sequence",
+                      "type": "composite",
+                      "name": "sequence",
+                      "parameters": {
+                        "type": "sliding",
+                        "state": "off",
+                        "fromEntity": "attackTarget",
+                        "toEntity": "fleeTarget"
+                      },
+                      "children": [
+                        {
+                          "title": "timer",
+                          "type": "action",
+                          "name": "timer",
+                          "parameters": {
+                            "time": 2
+                          }
+                        },
+                        {
+                          "title": "sayToEntity",
+                          "type": "action",
+                          "name": "sayToEntity",
+                          "parameters": {
+                            "dialogType": "dialog.alert",
+                            "entity": "reactTarget",
+                            "tags": {},
+                            "static": false
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "title": "reaction-follow",
+                    "type": "module",
+                    "name": "reaction-follow",
+                    "parameters": {
+                      "duration": 10,
+                      "creepy": false
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

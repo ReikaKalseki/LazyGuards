@@ -1,0 +1,218 @@
+{
+  "name": "attackthief",
+  "scripts": [
+    "/scripts/actions/notification.lua",
+    "/scripts/actions/position.lua",
+    "/scripts/actions/sensor.lua",
+    "/scripts/actions/world.lua",
+    "/scripts/actions/dialog.lua",
+    "/scripts/actions/time.lua"
+  ],
+  "parameters": {},
+  "root": {
+    "title": "failer",
+    "type": "decorator",
+    "name": "failer",
+    "parameters": {},
+    "child": {
+      "title": "sequence",
+      "type": "composite",
+      "name": "sequence",
+      "parameters": {
+        "type": "sliding",
+        "state": "off",
+        "fromEntity": "attackTarget",
+        "toEntity": "fleeTarget"
+      },
+      "children": [
+        {
+          "title": "receivedNotification",
+          "type": "action",
+          "name": "receivedNotification",
+          "parameters": {
+            "type": "objectBroken"
+          },
+          "output": {
+            "target": "thiefTarget",
+            "targetPosition": "objectPosition"
+          }
+        },
+        {
+          "title": "inverter",
+          "type": "decorator",
+          "name": "inverter",
+          "parameters": {},
+          "child": {
+            "title": "selector",
+            "type": "composite",
+            "name": "selector",
+            "parameters": {},
+            "children": [
+              {
+                "title": "sequence",
+                "type": "composite",
+                "name": "sequence",
+                "parameters": {
+                  "type": "sliding",
+                  "state": "off",
+                  "fromEntity": "attackTarget",
+                  "toEntity": "fleeTarget"
+                },
+                "children": [
+                  {
+                    "title": "distance",
+                    "type": "action",
+                    "name": "distance",
+                    "parameters": {
+                      "from": "self",
+                      "to": "objectPosition"
+                    },
+                    "output": {
+                      "vector": "toObject"
+                    }
+                  },
+                  {
+                    "title": "lineTileCollision",
+                    "type": "action",
+                    "name": "lineTileCollision",
+                    "parameters": {
+                      "position": "self",
+                      "offset": "toObject",
+                      "collisionType": [
+                        "Null",
+                        "Block",
+                        "Dynamic"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "title": "sequence",
+                "type": "composite",
+                "name": "sequence",
+                "parameters": {
+                  "type": "sliding",
+                  "state": "off",
+                  "fromEntity": "attackTarget",
+                  "toEntity": "fleeTarget"
+                },
+                "children": [
+                  {
+                    "title": "entityPosition",
+                    "type": "action",
+                    "name": "entityPosition",
+                    "parameters": {
+                      "entity": "thiefTarget"
+                    },
+                    "output": {
+                      "position": "thiefPosition"
+                    }
+                  },
+                  {
+                    "title": "distance",
+                    "type": "action",
+                    "name": "distance",
+                    "parameters": {
+                      "from": "self",
+                      "to": "thiefPosition"
+                    },
+                    "output": {
+                      "vector": "toThief"
+                    }
+                  },
+                  {
+                    "title": "lineTileCollision",
+                    "type": "action",
+                    "name": "lineTileCollision",
+                    "parameters": {
+                      "position": "self",
+                      "offset": "toThief",
+                      "collisionType": [
+                        "Null",
+                        "Block",
+                        "Dynamic"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "title": "selector",
+          "type": "composite",
+          "name": "selector",
+          "parameters": {},
+          "children": [
+            {
+              "title": "limiter",
+              "type": "decorator",
+              "name": "limiter",
+              "parameters": {
+                "limit": 2
+              },
+              "child": {
+                "title": "sequence",
+                "type": "composite",
+                "name": "sequence",
+                "parameters": {
+                  "type": "sliding",
+                  "state": "off",
+                  "fromEntity": "attackTarget",
+                  "toEntity": "fleeTarget"
+                },
+                "children": [
+                  {
+                    "title": "sayToEntity",
+                    "type": "action",
+                    "name": "sayToEntity",
+                    "parameters": {
+                      "dialogType": "dialog.accuse",
+                      "entity": "thiefTarget",
+                      "tags": {},
+                      "static": false
+                    }
+                  },
+                  {
+                    "title": "timer",
+                    "type": "action",
+                    "name": "timer",
+                    "parameters": {
+                      "time": 2
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "title": "cooldown",
+              "type": "decorator",
+              "name": "cooldown",
+              "parameters": {
+                "cooldown": 1,
+                "onFail": false,
+                "onSuccess": true
+              },
+              "child": {
+                "title": "broadcastNotification",
+                "type": "action",
+                "name": "broadcastNotification",
+                "parameters": {
+                  "position": "self",
+                  "range": 40,
+                  "entityTypes": [
+                    "npc"
+                  ],
+                  "type": "attackThief",
+                  "target": "reactTarget"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

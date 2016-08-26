@@ -1,0 +1,10 @@
+{
+  "author" : "Reika",
+  "description" : "Removes the broken thief-attacking behavior, because sometimes you REALLY want those durasteel beds or crystal lamps, and sometimes are just sick of being blamed for villages disintegrating in fire rain.",
+  "friendlyName" : "Lazy Guards",
+  "includes" : [],
+  "link" : "steam://url/CommunityFilePage/751146113",
+  "name" : "LazyGuards",
+  "steamContentId" : "751146113",
+  "version" : "0.0.1"
+}
